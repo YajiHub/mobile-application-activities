@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
                 R.drawable.dice6
         };
 
-        // Define some fun colors for animation
         colors = new int[] {
                 Color.BLACK,
                 Color.RED,
