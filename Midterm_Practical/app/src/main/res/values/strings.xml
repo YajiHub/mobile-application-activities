@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Quiz-2</string>
+    <string name="text">Please tap the button...</string>
+    <string name="roll">Roll!</string>
+    <string-array name="main_spinner">
+        <item>Basic Calculator</item>
+        <item>Base Number Calculator</item>
+        <item>Unit Converter</item>
+    </string-array>
+
+    <string-array name="unit_spinner">
+        <item>Celsius</item>
+        <item>Kelvin</item>
+        <item>Fahrenheit</item>
+    </string-array>
+
+    <string name="bmi_name">BMI Calculator</string>
+    <string name="bmi">BMI Calculator</string>
+    <string name="weight">Enter your weight (kg):</string>
+    <string name="height">Enter your height (m):</string>
+    <string name="your_bmi">Your BMI:</string>
+    <string name="category">BMI category appears here.</string>
+    <string name="calculate">Calculate my BMI!</string>
+    <string name="cat1">Very severely underweight</string>
+    <string name="cat2">Severely underweight</string>
+    <string name="cat3">Underweight</string>
+    <string name="cat4">Normal (healthy weight)</string>
+    <string name="cat5">Overweight</string>
+    <string name="cat6">Obese Class I (Moderately obese)</string>
+    <string name="cat7">Obese Class II (Severely obese)</string>
+    <string name="cat8">Obese Class III (Very severely obese)</string>
+
+</resources>
