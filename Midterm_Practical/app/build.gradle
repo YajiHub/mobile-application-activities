@@ -5,7 +5,7 @@ android {
     buildToolsVersion "33.0.0"
 
     defaultConfig {
-        applicationId "com.example.diceroller"
+        applicationId "com.example.Midterm_Practical"
         minSdkVersion 16
         targetSdkVersion 33
         versionCode 1

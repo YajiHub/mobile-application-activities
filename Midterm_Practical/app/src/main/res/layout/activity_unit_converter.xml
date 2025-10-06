@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".UnitConverter">
 
     <Spinner
         android:id="@+id/main_spinner"
-        android:layout_width="409dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -21,94 +21,134 @@
         style="@style/Widget.AppCompat.TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Temperature Unit Converter"
+        android:layout_marginTop="16dp"
+        android:text="Unit Converter"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.167" />
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_spinner" />
 
     <TextView
-        android:id="@+id/to_text"
+        android:id="@+id/converter_label"
         style="@style/Widget.AppCompat.TextView"
-        android:layout_width="136dp"
-        android:layout_height="24dp"
-        android:text="To: "
-        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Converter Type:"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/to_spinner"
-        app:layout_constraintEnd_toEndOf="@+id/to_spinner"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/to_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/label_text"
-        app:layout_constraintVertical_bias="0.724" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_text" />
+
+    <Spinner
+        android:id="@+id/converter_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/converter_label" />
 
     <TextView
         android:id="@+id/from_text"
         style="@style/Widget.AppCompat.TextView"
-        android:layout_width="136dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="144dp"
-        android:text="From: "
-        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="From:"
+        android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/to_edit_text"
-        app:layout_constraintEnd_toEndOf="@+id/editText"
-        app:layout_constraintHorizontal_bias="0.433"
-        app:layout_constraintStart_toStartOf="@+id/editText"
-        app:layout_constraintTop_toBottomOf="@+id/label_text"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/converter_spinner" />
 
     <Spinner
         android:id="@+id/from_spinner"
-        android:layout_width="142dp"
-        android:layout_height="41dp"
-        app:layout_constraintBottom_toBottomOf="@+id/to_spinner"
-        app:layout_constraintEnd_toStartOf="@+id/to_spinner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/to_spinner" />
-
-    <Spinner
-        android:id="@+id/to_spinner"
-        android:layout_width="142dp"
-        android:layout_height="41dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.855"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_text" />
-
-    <EditText
-        android:id="@+id/to_edit_text"
-        android:layout_width="151dp"
-        android:layout_height="52dp"
-        android:layout_gravity="center_horizontal"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:hint="Enter the Value"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/to_spinner"
-        app:layout_constraintEnd_toEndOf="@+id/to_spinner"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/to_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/to_text" />
+        app:layout_constraintTop_toBottomOf="@+id/from_text" />
 
     <EditText
         android:id="@+id/editText"
-        android:layout_width="166dp"
-        android:layout_height="47dp"
-        android:ems="10"
-        android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/from_spinner"
-        app:layout_constraintEnd_toEndOf="@+id/from_spinner"
-        app:layout_constraintHorizontal_bias="0.583"
-        app:layout_constraintStart_toStartOf="@+id/from_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/from_text"
-        app:layout_constraintVertical_bias="1.0" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text"
+        android:hint="Enter value"
+        android:inputType="numberDecimal"
+        android:padding="12dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/from_spinner" />
 
+    <ImageButton
+        android:id="@+id/swap_button"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Swap units"
+        android:src="@drawable/ic_swap"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText" />
+
+    <TextView
+        android:id="@+id/to_text"
+        style="@style/Widget.AppCompat.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="To:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/swap_button" />
+
+    <Spinner
+        android:id="@+id/to_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to_text" />
+
+    <EditText
+        android:id="@+id/to_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text"
+        android:enabled="false"
+        android:hint="Result"
+        android:padding="12dp"
+        android:textAlignment="center"
+        android:textColor="#4CAF50"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to_spinner" />
+
+    <TextView
+        android:id="@+id/info_text"
+        style="@style/Widget.AppCompat.TextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:text="Select converter type and units to begin"
+        android:textColor="#757575"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to_edit_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
