@@ -19,13 +19,13 @@ public class UnitConverter extends AppCompatActivity {
     String main_selected;
     Spinner main_spinner;
 
-    String converter_type;
+    String converter_type = "";
     Spinner converter_spinner;
 
-    String from_selected;
+    String from_selected = "";
     Spinner from_spinner;
 
-    String to_selected;
+    String to_selected = "";
     Spinner to_spinner;
 
     int current_index = 0;
@@ -90,7 +90,6 @@ public class UnitConverter extends AppCompatActivity {
         ArrayAdapter<CharSequence> converter_adapter = ArrayAdapter.createFromResource(this,
                 R.array.converter_types, android.R.layout.simple_spinner_item);
         converter_spinner.setAdapter(converter_adapter);
-        converter_spinner.setSelection(0);
 
         converter_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -103,6 +102,9 @@ public class UnitConverter extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+
+        // Set initial selection and trigger the spinner update
+        converter_spinner.setSelection(0);
 
         // From spinner
         from_spinner = findViewById(R.id.from_spinner);
@@ -144,11 +146,6 @@ public class UnitConverter extends AppCompatActivity {
     }
 
     private void updateConverterSpinners() {
-        if (converter_index == 0) {
-            converter_index++;
-            return;
-        }
-
         int arrayResource = 0;
 
         switch (converter_type) {
@@ -161,6 +158,8 @@ public class UnitConverter extends AppCompatActivity {
             case "Weight":
                 arrayResource = R.array.weight_units;
                 break;
+            default:
+                return; // Exit if converter type not recognized
         }
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -169,11 +168,16 @@ public class UnitConverter extends AppCompatActivity {
         from_spinner.setAdapter(adapter);
         to_spinner.setAdapter(adapter);
 
+        // Only clear inputs if not the first load
+        if (converter_index > 0) {
+            input.setText("");
+            to_edit_text.setText("");
+        }
+        converter_index++;
+
+        // Set default selections
         from_spinner.setSelection(0);
         to_spinner.setSelection(0);
-
-        input.setText("");
-        to_edit_text.setText("");
     }
 
     private void swapUnits() {
@@ -214,13 +218,30 @@ public class UnitConverter extends AppCompatActivity {
 
     public void convert() {
         String from_text = input.getText().toString();
-        if (from_text.isEmpty()) {
+        if (from_text.isEmpty() || from_text.equals("-")) {
+            to_edit_text.setText("");
+            return;
+        }
+
+        // Check if converter type and units are selected
+        if (converter_type == null || converter_type.isEmpty() ||
+                from_selected == null || from_selected.isEmpty() ||
+                to_selected == null || to_selected.isEmpty()) {
             to_edit_text.setText("");
             return;
         }
 
         try {
             from = Double.parseDouble(input.getText().toString());
+
+            // Validate input based on converter type
+            if (converter_type.equals("Weight") || converter_type.equals("Currency")) {
+                if (from < 0) {
+                    to_edit_text.setText("Invalid");
+                    toastMsg("Negative values not allowed for " + converter_type);
+                    return;
+                }
+            }
 
             switch (converter_type) {
                 case "Temperature":
@@ -232,17 +253,22 @@ public class UnitConverter extends AppCompatActivity {
                 case "Weight":
                     convertWeight();
                     break;
+                default:
+                    to_edit_text.setText("");
+                    return;
             }
 
             String string_result = formatResult(result);
             to_edit_text.setText(string_result);
 
         } catch (NumberFormatException e) {
-            toastMsg("Please enter a valid number");
+            to_edit_text.setText("");
         }
     }
 
     private void convertTemperature() {
+        if (from_selected == null || to_selected == null) return;
+
         switch (from_selected) {
             case "Celsius":
                 switch (to_selected) {
@@ -287,6 +313,8 @@ public class UnitConverter extends AppCompatActivity {
     }
 
     private void convertCurrency() {
+        if (from_selected == null || to_selected == null) return;
+
         // Simple conversion rates (as of example rates)
         // First convert to PHP (base), then to target currency
         double inPHP = 0;
@@ -331,6 +359,8 @@ public class UnitConverter extends AppCompatActivity {
     }
 
     private void convertWeight() {
+        if (from_selected == null || to_selected == null) return;
+
         // First convert to grams (base), then to target unit
         double inGrams = 0;
 

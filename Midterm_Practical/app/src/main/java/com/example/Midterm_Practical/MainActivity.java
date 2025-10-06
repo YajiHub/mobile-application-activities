@@ -280,35 +280,87 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleNegative() {
-        if (lastWasEquals || currentEquation.equals("0")) {
+        // Don't allow toggle after equals or on "0"
+        if (lastWasEquals) {
             return;
         }
 
-        String lastNumber = getLastNumber();
-        int lastNumStart = currentEquation.lastIndexOf(lastNumber);
-
-        if (lastNumStart > 0 && currentEquation.charAt(lastNumStart - 1) == '-') {
-            // Check if this minus is a negative sign (not subtraction)
-            if (lastNumStart == 1 || currentEquation.charAt(lastNumStart - 2) == '(' ||
-                    isOperator(currentEquation.charAt(lastNumStart - 2))) {
-                // Remove the negative sign
-                currentEquation = currentEquation.substring(0, lastNumStart - 1) +
-                        currentEquation.substring(lastNumStart);
-            } else {
-                // Add negative with parentheses
-                currentEquation = currentEquation.substring(0, lastNumStart) + "(-" +
-                        currentEquation.substring(lastNumStart) + ")";
-            }
-        } else {
-            // Add negative sign
-            if (lastNumStart == 0) {
-                currentEquation = "-" + currentEquation;
-            } else {
-                currentEquation = currentEquation.substring(0, lastNumStart) + "(-" +
-                        currentEquation.substring(lastNumStart) + ")";
-            }
+        if (currentEquation.equals("0") || currentEquation.isEmpty()) {
+            return;
         }
-        updateDisplay();
+
+        try {
+            // Check if the equation ends with a closing parenthesis - might be (-number)
+            if (currentEquation.endsWith(")")) {
+                // Look for the pattern (-number)
+                int closingParen = currentEquation.length() - 1;
+                int openingParen = -1;
+
+                // Find the matching opening parenthesis
+                int parenCount = 1;
+                for (int i = closingParen - 1; i >= 0; i--) {
+                    if (currentEquation.charAt(i) == ')') {
+                        parenCount++;
+                    } else if (currentEquation.charAt(i) == '(') {
+                        parenCount--;
+                        if (parenCount == 0) {
+                            openingParen = i;
+                            break;
+                        }
+                    }
+                }
+
+                // Check if this is a negative number pattern: (-X)
+                if (openingParen >= 0 && openingParen + 1 < currentEquation.length() &&
+                        currentEquation.charAt(openingParen + 1) == '-') {
+                    // Extract the number without (-  and )
+                    String numberPart = currentEquation.substring(openingParen + 2, closingParen);
+
+                    // Verify it's actually a number
+                    if (numberPart.matches("[0-9.]+")) {
+                        // Remove the (- ... ) wrapper
+                        String before = openingParen > 0 ? currentEquation.substring(0, openingParen) : "";
+                        currentEquation = before + numberPart;
+                        updateDisplay();
+                        return;
+                    }
+                }
+            }
+
+            // Get the last complete number (including any negative sign)
+            String lastNumber = getLastNumber();
+
+            if (lastNumber.isEmpty() || lastNumber.equals("-")) {
+                return;
+            }
+
+            // Find where this number starts in the equation
+            int lastNumStart = currentEquation.lastIndexOf(lastNumber);
+
+            if (lastNumStart == -1) {
+                return;
+            }
+
+            // Check if the number is already negative (without parentheses)
+            if (lastNumber.startsWith("-")) {
+                // Remove the negative sign
+                String positiveNumber = lastNumber.substring(1);
+                currentEquation = currentEquation.substring(0, lastNumStart) +
+                        positiveNumber +
+                        currentEquation.substring(lastNumStart + lastNumber.length());
+            } else {
+                // Add negative sign with parentheses
+                String before = currentEquation.substring(0, lastNumStart);
+                String after = lastNumStart + lastNumber.length() < currentEquation.length() ?
+                        currentEquation.substring(lastNumStart + lastNumber.length()) : "";
+                currentEquation = before + "(-" + lastNumber + ")" + after;
+            }
+
+            updateDisplay();
+        } catch (Exception e) {
+            // If anything goes wrong, just ignore the toggle
+            e.printStackTrace();
+        }
     }
 
     private void deleteLastChar() {
@@ -432,17 +484,29 @@ public class MainActivity extends AppCompatActivity {
 
     private String getLastNumber() {
         StringBuilder num = new StringBuilder();
+        boolean hasNegative = false;
+
         for (int i = currentEquation.length() - 1; i >= 0; i--) {
             char c = currentEquation.charAt(i);
+
             if (Character.isDigit(c) || c == '.') {
                 num.insert(0, c);
-            } else if (c == '-' && (i == 0 || currentEquation.charAt(i-1) == '(' ||
-                    isOperator(currentEquation.charAt(i-1)))) {
-                num.insert(0, c);
+            } else if (c == '-' && !hasNegative) {
+                // Check if this is a negative sign (not subtraction operator)
+                if (i == 0 || currentEquation.charAt(i - 1) == '(' ||
+                        isOperator(currentEquation.charAt(i - 1))) {
+                    num.insert(0, c);
+                    hasNegative = true;
+                } else {
+                    // This is a subtraction operator, stop here
+                    break;
+                }
             } else {
+                // Hit an operator or other character, stop
                 break;
             }
         }
+
         return num.toString().isEmpty() ? "0" : num.toString();
     }
 
