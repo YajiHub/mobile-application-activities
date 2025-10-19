@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Sensor accelerometer;
     Sensor magnetometer;
     TextView tv_degrees;
+    TextView tv_direction;
     ImageView iv_compass;
     private float current_degree = 0f;
 
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // Initialize UI components
         tv_degrees = (TextView) findViewById(R.id.tv_degrees);
+        tv_direction = (TextView) findViewById(R.id.tv_direction);
         iv_compass = (ImageView) findViewById(R.id.iv_compass);
     }
 
@@ -93,9 +95,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 float degrees = ((azimuth_angle * 180f) / 3.14159f);
                 int degreesInt = Math.round(degrees);
 
+                // Normalize to 0-360 range
+                if (degreesInt < 0) {
+                    degreesInt += 360;
+                }
+
                 // Update text display
-                tv_degrees.setText(Integer.toString(degreesInt) +
-                        (char) 0x00B0 + " to absolute north.");
+                tv_degrees.setText(Integer.toString(degreesInt) + "°");
+
+                // Get and display direction
+                String direction = getDirection(degreesInt);
+                tv_direction.setText(direction);
 
                 // Animate compass rotation
                 RotateAnimation rotate = new RotateAnimation(
@@ -111,6 +121,41 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 current_degree = -degreesInt;
             }
         }
+    }
+
+    /**
+     * Converts degrees (0-360) to cardinal direction
+     * @param degrees The azimuth angle in degrees
+     * @return Cardinal direction string (N, NE, E, SE, S, SW, W, NW)
+     */
+    private String getDirection(int degrees) {
+        // Normalize degrees to 0-360
+        degrees = degrees % 360;
+        if (degrees < 0) {
+            degrees += 360;
+        }
+
+        // Define direction ranges (each direction covers 45 degrees)
+        // N: 337.5-22.5, NE: 22.5-67.5, E: 67.5-112.5, etc.
+        if (degrees >= 337.5 || degrees < 22.5) {
+            return "N";
+        } else if (degrees >= 22.5 && degrees < 67.5) {
+            return "NE";
+        } else if (degrees >= 67.5 && degrees < 112.5) {
+            return "E";
+        } else if (degrees >= 112.5 && degrees < 157.5) {
+            return "SE";
+        } else if (degrees >= 157.5 && degrees < 202.5) {
+            return "S";
+        } else if (degrees >= 202.5 && degrees < 247.5) {
+            return "SW";
+        } else if (degrees >= 247.5 && degrees < 292.5) {
+            return "W";
+        } else if (degrees >= 292.5 && degrees < 337.5) {
+            return "NW";
+        }
+
+        return "N";
     }
 
     @Override
