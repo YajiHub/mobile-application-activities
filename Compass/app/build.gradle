@@ -5,7 +5,7 @@ android {
     buildToolsVersion "33.0.0"
 
     defaultConfig {
-        applicationId "com.example.compass"
+        applicationId "com.example.compass_montecillo"
         minSdkVersion 16
         targetSdkVersion 33
         versionCode 1
