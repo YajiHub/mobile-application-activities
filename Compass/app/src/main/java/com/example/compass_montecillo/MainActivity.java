@@ -178,51 +178,72 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         // Determine which cardinal/intercardinal direction we're closest to
-        if (degrees >= 337.5 || degrees < 22.5) {
-            // North (0°)
-            info.cardinalDirection = "N";
-            info.fullDirectionName = "North";
-            if (degrees > 180) {
-                info.offset = 360 - degrees;
-            } else {
-                info.offset = degrees;
-            }
-        } else if (degrees >= 22.5 && degrees < 67.5) {
-            // Northeast (45°)
-            info.cardinalDirection = "NE";
-            info.fullDirectionName = "Northeast";
-            info.offset = Math.abs(degrees - 45);
-        } else if (degrees >= 67.5 && degrees < 112.5) {
+//        if (degrees >= 337.5 || degrees < 22.5) {
+//            // North (0°)
+//            info.cardinalDirection = "N";
+//            info.fullDirectionName = "North";
+//            if (degrees > 180) {
+//                info.offset = 360 - degrees;
+//            } else {
+//                info.offset = degrees;
+//            }
+//        } else
+            if (degrees >= 0 && degrees <= 89) {
+                if (degrees == 0){
+                    info.cardinalDirection = "N";
+                    info.fullDirectionName = "North";
+                }else {
+                    // Northeast (45°)
+                    info.cardinalDirection = "NE";
+                    info.fullDirectionName = "Northeast";
+                    info.offset = Math.abs(degrees);
+                }
+        } else if (degrees >= 90 && degrees <= 179) {
+                if (degrees == 90){
+                    info.cardinalDirection = "E";
+                    info.fullDirectionName = "East";
+                }else{
             // East (90°)
-            info.cardinalDirection = "E";
-            info.fullDirectionName = "East";
-            info.offset = Math.abs(degrees - 90);
-        } else if (degrees >= 112.5 && degrees < 157.5) {
-            // Southeast (135°)
             info.cardinalDirection = "SE";
             info.fullDirectionName = "Southeast";
-            info.offset = Math.abs(degrees - 135);
-        } else if (degrees >= 157.5 && degrees < 202.5) {
-            // South (180°)
-            info.cardinalDirection = "S";
-            info.fullDirectionName = "South";
-            info.offset = Math.abs(degrees - 180);
-        } else if (degrees >= 202.5 && degrees < 247.5) {
-            // Southwest (225°)
+            info.offset = Math.abs(degrees - 90);}
+        } else if (degrees >= 180 && degrees <= 269) {
+                if (degrees == 180){
+                    info.cardinalDirection = "S";
+                    info.fullDirectionName = "South";
+                }else{
+            // Southeast (135°)
             info.cardinalDirection = "SW";
-            info.fullDirectionName = "Southwest";
-            info.offset = Math.abs(degrees - 225);
-        } else if (degrees >= 247.5 && degrees < 292.5) {
-            // West (270°)
-            info.cardinalDirection = "W";
-            info.fullDirectionName = "West";
-            info.offset = Math.abs(degrees - 270);
-        } else if (degrees >= 292.5 && degrees < 337.5) {
-            // Northwest (315°)
-            info.cardinalDirection = "NW";
-            info.fullDirectionName = "Northwest";
-            info.offset = Math.abs(degrees - 315);
-        }
+            info.fullDirectionName = "SouthWest";
+            info.offset = Math.abs(degrees - 180);
+                }
+        } else if (degrees >= 270 && degrees <= 359) {
+                if (degrees == 270) {
+                    info.cardinalDirection = "W";
+                    info.fullDirectionName = "West";
+                } else {
+                    info.cardinalDirection = "NW";
+                    info.fullDirectionName = "NorthWest";
+                    info.offset = Math.abs(degrees - 270);
+                }
+                // South (180°)
+            }
+//        } else if (degrees >= 202.5 && degrees < 247.5) {
+//            // Southwest (225°)
+//            info.cardinalDirection = "SW";
+//            info.fullDirectionName = "Southwest";
+//            info.offset = Math.abs(degrees - 225);
+//        } else if (degrees >= 247.5 && degrees < 292.5) {
+//            // West (270°)
+//            info.cardinalDirection = "W";
+//            info.fullDirectionName = "West";
+//            info.offset = Math.abs(degrees - 270);
+//        } else if (degrees >= 292.5 && degrees < 337.5) {
+//            // Northwest (315°)
+//            info.cardinalDirection = "NW";
+//            info.fullDirectionName = "Northwest";
+//            info.offset = Math.abs(degrees - 315);
+//        }
 
         return info;
     }
