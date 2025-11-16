@@ -15,6 +15,7 @@ import android.text.InputType;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.show_my_location.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
