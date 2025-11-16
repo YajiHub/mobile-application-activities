@@ -25,10 +25,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ImageView iv_compass;
     private float current_degree = 0f;
 
-    // For smooth rotation
-    private static final int SMOOTHING_FACTOR = 5;
+    // For smooth rotation - increased smoothing
+    private static final int SMOOTHING_FACTOR = 10;
     private float[] smoothedValues = new float[SMOOTHING_FACTOR];
     private int smoothIndex = 0;
+    private boolean isInitialized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,11 +58,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Register sensor listeners when activity resumes
         if (accelerometer != null) {
             compassSensorManager.registerListener(this, accelerometer,
-                    SensorManager.SENSOR_DELAY_GAME);
+                    SensorManager.SENSOR_DELAY_UI);
         }
         if (magnetometer != null) {
             compassSensorManager.registerListener(this, magnetometer,
-                    SensorManager.SENSOR_DELAY_GAME);
+                    SensorManager.SENSOR_DELAY_UI);
         }
     }
 
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         // Unregister sensor listeners to save battery when activity pauses
         compassSensorManager.unregisterListener(this);
+        isInitialized = false;
     }
 
     float[] accel_read;
@@ -106,22 +108,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 // Convert radians to degrees
                 float degrees = ((azimuth_angle * 180f) / 3.14159f);
 
-                // Apply smoothing for smoother rotation
+                // Normalize to 0-360 range
+                if (degrees < 0) {
+                    degrees += 360;
+                }
+
+                // Initialize smoothing array with first value
+                if (!isInitialized) {
+                    for (int i = 0; i < SMOOTHING_FACTOR; i++) {
+                        smoothedValues[i] = degrees;
+                    }
+                    current_degree = -degrees;
+                    isInitialized = true;
+                }
+
+                // Apply circular smoothing for angles
                 smoothedValues[smoothIndex] = degrees;
                 smoothIndex = (smoothIndex + 1) % SMOOTHING_FACTOR;
 
-                float smoothedDegrees = 0;
-                for (float value : smoothedValues) {
-                    smoothedDegrees += value;
-                }
-                smoothedDegrees /= SMOOTHING_FACTOR;
+                // Calculate smoothed angle using circular mean
+                float smoothedDegrees = calculateCircularMean(smoothedValues);
 
                 int degreesInt = Math.round(smoothedDegrees);
-
-                // Normalize to 0-360 range
-                if (degreesInt < 0) {
-                    degreesInt += 360;
-                }
 
                 // Get direction and offset from cardinal points
                 DirectionInfo dirInfo = getDirectionWithOffset(degreesInt);
@@ -137,21 +145,68 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     tv_degrees.setText(dirInfo.offset + "° " + dirInfo.fullDirectionName);
                 }
 
-                // Animate compass rotation with interpolator for smoother animation
-                RotateAnimation rotate = new RotateAnimation(
-                        current_degree,
-                        -smoothedDegrees,
-                        Animation.RELATIVE_TO_SELF, 0.5f,
-                        Animation.RELATIVE_TO_SELF, 0.5f);
+                // Calculate rotation with shortest path
+                float targetDegree = -smoothedDegrees;
 
-                rotate.setDuration(200);
-                rotate.setFillAfter(true);
-                rotate.setInterpolator(new android.view.animation.LinearInterpolator());
+                // Normalize current_degree to 0-360 range for comparison
+                float normalizedCurrent = current_degree % 360;
+                if (normalizedCurrent < 0) normalizedCurrent += 360;
 
-                iv_compass.startAnimation(rotate);
-                current_degree = -smoothedDegrees;
+                float normalizedTarget = targetDegree % 360;
+                if (normalizedTarget < 0) normalizedTarget += 360;
+
+                // Calculate the shortest angular distance
+                float diff = normalizedTarget - normalizedCurrent;
+
+                if (diff > 180) {
+                    diff -= 360;
+                } else if (diff < -180) {
+                    diff += 360;
+                }
+
+                // Only animate if difference is significant (reduces jitter)
+                if (Math.abs(diff) > 0.5f) {
+                    float newDegree = current_degree + diff;
+
+                    // Animate compass rotation
+                    RotateAnimation rotate = new RotateAnimation(
+                            current_degree,
+                            newDegree,
+                            Animation.RELATIVE_TO_SELF, 0.5f,
+                            Animation.RELATIVE_TO_SELF, 0.5f);
+
+                    rotate.setDuration(100);
+                    rotate.setFillAfter(true);
+                    rotate.setInterpolator(new android.view.animation.LinearInterpolator());
+
+                    iv_compass.startAnimation(rotate);
+                    current_degree = newDegree;
+                }
             }
         }
+    }
+
+    /**
+     * Calculate circular mean for angles to handle 0/360 boundary properly
+     */
+    private float calculateCircularMean(float[] angles) {
+        float sinSum = 0;
+        float cosSum = 0;
+
+        for (float angle : angles) {
+            double radians = Math.toRadians(angle);
+            sinSum += Math.sin(radians);
+            cosSum += Math.cos(radians);
+        }
+
+        float meanRadians = (float) Math.atan2(sinSum / angles.length, cosSum / angles.length);
+        float meanDegrees = (float) Math.toDegrees(meanRadians);
+
+        if (meanDegrees < 0) {
+            meanDegrees += 360;
+        }
+
+        return meanDegrees;
     }
 
     /**
@@ -177,73 +232,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             degrees += 360;
         }
 
-        // Determine which cardinal/intercardinal direction we're closest to
-//        if (degrees >= 337.5 || degrees < 22.5) {
-//            // North (0°)
-//            info.cardinalDirection = "N";
-//            info.fullDirectionName = "North";
-//            if (degrees > 180) {
-//                info.offset = 360 - degrees;
-//            } else {
-//                info.offset = degrees;
-//            }
-//        } else
-            if (degrees >= 0 && degrees <= 89) {
-                if (degrees == 0){
-                    info.cardinalDirection = "N";
-                    info.fullDirectionName = "North";
-                }else {
-                    // Northeast (45°)
-                    info.cardinalDirection = "NE";
-                    info.fullDirectionName = "Northeast";
-                    info.offset = Math.abs(degrees);
-                }
-        } else if (degrees >= 90 && degrees <= 179) {
-                if (degrees == 90){
-                    info.cardinalDirection = "E";
-                    info.fullDirectionName = "East";
-                }else{
-            // East (90°)
-            info.cardinalDirection = "SE";
-            info.fullDirectionName = "Southeast";
-            info.offset = Math.abs(degrees - 90);}
-        } else if (degrees >= 180 && degrees <= 269) {
-                if (degrees == 180){
-                    info.cardinalDirection = "S";
-                    info.fullDirectionName = "South";
-                }else{
-            // Southeast (135°)
-            info.cardinalDirection = "SW";
-            info.fullDirectionName = "SouthWest";
-            info.offset = Math.abs(degrees - 180);
-                }
-        } else if (degrees >= 270 && degrees <= 359) {
-                if (degrees == 270) {
-                    info.cardinalDirection = "W";
-                    info.fullDirectionName = "West";
-                } else {
-                    info.cardinalDirection = "NW";
-                    info.fullDirectionName = "NorthWest";
-                    info.offset = Math.abs(degrees - 270);
-                }
-                // South (180°)
+        if (degrees >= 0 && degrees <= 89) {
+            if (degrees == 0){
+                info.cardinalDirection = "N";
+                info.fullDirectionName = "North";
+                info.offset = 0;
+            }else {
+                // Northeast (45°)
+                info.cardinalDirection = "NE";
+                info.fullDirectionName = "Northeast";
+                info.offset = degrees;
             }
-//        } else if (degrees >= 202.5 && degrees < 247.5) {
-//            // Southwest (225°)
-//            info.cardinalDirection = "SW";
-//            info.fullDirectionName = "Southwest";
-//            info.offset = Math.abs(degrees - 225);
-//        } else if (degrees >= 247.5 && degrees < 292.5) {
-//            // West (270°)
-//            info.cardinalDirection = "W";
-//            info.fullDirectionName = "West";
-//            info.offset = Math.abs(degrees - 270);
-//        } else if (degrees >= 292.5 && degrees < 337.5) {
-//            // Northwest (315°)
-//            info.cardinalDirection = "NW";
-//            info.fullDirectionName = "Northwest";
-//            info.offset = Math.abs(degrees - 315);
-//        }
+        } else if (degrees >= 90 && degrees <= 179) {
+            if (degrees == 90){
+                info.cardinalDirection = "E";
+                info.fullDirectionName = "East";
+                info.offset = 0;
+            }else{
+                // Southeast
+                info.cardinalDirection = "SE";
+                info.fullDirectionName = "Southeast";
+                info.offset = degrees - 90;
+            }
+        } else if (degrees >= 180 && degrees <= 269) {
+            if (degrees == 180){
+                info.cardinalDirection = "S";
+                info.fullDirectionName = "South";
+                info.offset = 0;
+            }else{
+                // Southwest
+                info.cardinalDirection = "SW";
+                info.fullDirectionName = "SouthWest";
+                info.offset = degrees - 180;
+            }
+        } else if (degrees >= 270 && degrees <= 359) {
+            if (degrees == 270) {
+                info.cardinalDirection = "W";
+                info.fullDirectionName = "West";
+                info.offset = 0;
+            } else {
+                info.cardinalDirection = "NW";
+                info.fullDirectionName = "NorthWest";
+                info.offset = degrees - 270;
+            }
+        }
 
         return info;
     }
